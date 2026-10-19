@@ -6,6 +6,8 @@ import { getCars, deleteCar } from '../carapi';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Snackbar from '@mui/material/Snackbar';
+import AddCar from './AddCar';
+import { Add } from '@mui/icons-material';
 
 function CarList() {
   const [cars, setCars] = useState<CarData[] | null>();
@@ -51,7 +53,8 @@ function CarList() {
 
   return(
     <>
-      <div style={{ width: '90%', height: 500 }}>
+      <AddCar fetchCars={fetchCars} />
+      <div style={{ width: '90%', height: 500, marginTop: 10 }}>
         <DataGrid 
           rows={cars || []}
           columns={columns}

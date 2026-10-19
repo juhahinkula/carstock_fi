@@ -5,7 +5,7 @@ export type CarData = {
   fuel: string;
   modelYear: number;
   price: number;
-  links: {
+  _links: {
     self: {
       href: string;
     },
