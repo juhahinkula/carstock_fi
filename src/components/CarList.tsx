@@ -1,41 +1,71 @@
 import { useState, useEffect } from 'react';
 import type { CarData } from "../types";
 import { DataGrid } from '@mui/x-data-grid';
-import type { GridColDef } from '@mui/x-data-grid';
+import type { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { getCars, deleteCar } from '../carapi';
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Snackbar from '@mui/material/Snackbar';
 
 function CarList() {
   const [cars, setCars] = useState<CarData[] | null>();
+  const [open, setOpen] = useState(false);
 
   const columns: GridColDef[] = [
-    { field: 'brand', headerName: 'Brand', width: 200 },
-    { field: 'model',  headerName: 'Model', width: 200 },
+    { field: 'brand', headerName: 'Brand', flex: 1 },
+    { field: 'model',  headerName: 'Model', flex: 1 },
     { field: 'color',  headerName: 'Color' },
     { field: 'fuel',  headerName: 'Fuel' },
     { field: 'modelYear', headerName: 'Model year' },
-    { field: 'price',  headerName: 'Price (€)' }
+    { field: 'price',  headerName: 'Price (€)' },
+    {
+      field: '_links.self.href',
+      headerName: ' ',
+      renderCell: (params: GridRenderCellParams) =>
+        <IconButton onClick={() => handleDelete(params.row._links.self.href)}>
+          <DeleteIcon color="error" />
+        </IconButton>
+    }
   ]
 
-  useEffect(() => {
-    fetch("https://car-rest-service-carshop.2.rahtiapp.fi/cars")
-    .then(response => {
-      if (!response.ok) {
-        throw new Error("Error when fetching cars");
-      }
-
-      return response.json();
-    })
+  const fetchCars = () => {
+    getCars()
     .then(data => setCars(data._embedded.cars))
     .catch(err => console.error(err))
+  }
+
+  useEffect(() => {
+    fetchCars();
   }, []);
 
+  const handleDelete = (url: string) => {
+    if (window.confirm("Are you sure?")) {
+      deleteCar(url)
+      .then(() => {
+        fetchCars();
+        setOpen(true);
+      })
+      .catch(err => console.error(err))
+    }
+  }
+
   return(
-    <div style={{ width: '90%', height: 500 }}>
-      <DataGrid 
-        rows={cars || []}
-        columns={columns}
-        getRowId={ row => row._links.self.href}
+    <>
+      <div style={{ width: '90%', height: 500 }}>
+        <DataGrid 
+          rows={cars || []}
+          columns={columns}
+          autoPageSize
+          getRowId={ row => row._links.self.href}
+        />
+      </ div>
+      <Snackbar 
+        open={open}
+        message="Car deleted successfully"
+        autoHideDuration={3000}
+        onClose={() => setOpen(false)}
       />
-    </ div>
+    </>
   );
 }
 
