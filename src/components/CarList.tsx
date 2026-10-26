@@ -7,7 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Snackbar from '@mui/material/Snackbar';
 import AddCar from './AddCar';
-import { Add } from '@mui/icons-material';
+import UpdateCar from './UpdateCar';
 
 function CarList() {
   const [cars, setCars] = useState<CarData[] | null>();
@@ -20,6 +20,12 @@ function CarList() {
     { field: 'fuel',  headerName: 'Fuel' },
     { field: 'modelYear', headerName: 'Model year' },
     { field: 'price',  headerName: 'Price (€)' },
+    {
+      field: '_links.car.href',
+      headerName: ' ',
+      renderCell: (params: GridRenderCellParams) =>
+        <UpdateCar fetchCars={fetchCars} carData={params.row} />
+    },
     {
       field: '_links.self.href',
       headerName: ' ',
